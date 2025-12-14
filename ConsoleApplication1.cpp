@@ -32,7 +32,7 @@ int ProcitajStudente(char* imedatoteke) {
 	return i;
 }
 
-void UcitajIspisi(struct Student s[], char* imedatoteke, int br) {
+int UcitajIspisi(struct Student s[], char* imedatoteke, int br) {
 	FILE* f;
 	int i = 0;
 	f = fopen(imedatoteke, "r");
@@ -64,9 +64,23 @@ int main() {
 	char imedatoteke[50];
 	printf("Unesite ime datoteke.\n");
 	scanf("%s", imedatoteke);
-	int br = ProcitajStudente(imedatoteke);
-	struct Student* s = ((struct Student*)malloc(br * sizeof(struct Student)));
-	UcitajIspisi(s, imedatoteke, br);
 
+	int br = ProcitajStudente(imedatoteke);
+	if (br == 0) {
+		printf("Nema zapisa u datoteci.\n");
+		return 0;
+	}
+
+	struct Student* s = ((struct Student*)malloc(br * sizeof(struct Student)));
+	if (s == NULL) {
+		printf("Neuspjesna alokacija.\n");
+		return 0;
+	}
+
+	if (UcitajIspisi(s, imedatoteke, br) == -1) {
+		printf("Greska pri ucitavanju.\n");
+	}
+
+	free(s);
 	return 0;
 }
