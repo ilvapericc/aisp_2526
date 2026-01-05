@@ -1,86 +1,79 @@
-﻿#define _CRT_SECURE_NO_WARNINGS
+﻿/*Napisati program koji prvo pročita koliko redaka ima datoteka, tj.koliko ima studenata zapisanih u
+datoteci.Nakon toga potrebno je dinamički alocirati prostor za niz struktura studenata(ime, prezime,
+	bodovi) i učitati iz datoteke sve zapise.Na ekran ispisati ime, prezime, apsolutni i relativni broj bodova.
+	Napomena: Svaki redak datoteke sadrži ime i prezime studenta, te broj bodova na kolokviju.
+	relativan_br_bodova = br_bodova / max_br_bodova * 100*/
+
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <stdio.h>
 #include <stdlib.h>
-/*Napisati program koji prvo pročita koliko redaka ima datoteka, tj. koliko ima studenata zapisanih u
-datoteci. Nakon toga potrebno je dinamički alocirati prostor za niz struktura studenata (ime, prezime,
-bodovi) i učitati iz datoteke sve zapise. Na ekran ispisati ime, prezime,apsolutni i relativni broj bodova.
-Napomena: Svaki redak datoteke sadrži ime i prezime studenta, te broj bodova na kolokviju.
-relativan_br_bodova = br_bodova/max_br_bodova*100
-*/
+#include <string.h>
 
 struct Student {
 	char ime[50];
 	char prezime[50];
-	int bodovi;
+	float bodovi;
 };
 
-int ProcitajStudente(char* imedatoteke) {
+int ProcitajRetke(char* imedatoteke) {
 	FILE* f;
-	int i = 0;
-	char ime[50], prezime[50];
-	int bodovi;
-	f = fopen(imedatoteke, "r");
-	if (f == NULL) {
-		printf("Datoteka nije ucitana.\n");
-	}
-	else {
-		while (fscanf(f, "%s %s %d", ime, prezime, &bodovi) == 3) {
-			i++;
-		}
-	}
-	fclose(f);
-	return i;
-}
-
-int UcitajIspisi(struct Student s[], char* imedatoteke, int br) {
-	FILE* f;
+	char s[100];
 	int i = 0;
 	f = fopen(imedatoteke, "r");
 	if (f == NULL) {
-		printf("Datoteka nije ucitana.\n");
+		return -1;
 	}
 	else {
-		while (fscanf(f, "%s %s %d", s[i].ime, s[i].prezime, &s[i].bodovi) == 3) {
+		while (fgets(s, 100, f)) {
 			i++;
 		}
+		fclose(f);
+		return i;
 	}
+}
 
-	float maxBodovi = s[0].bodovi;
-	for (int i = 0; i < br; i++) {
-		if (s[i].bodovi > maxBodovi) {
-			maxBodovi = s[i].bodovi;
+int UcitajPodatke(int br, char *imedatoteke, struct Student *s) {
+	FILE* f;
+	f = fopen(imedatoteke, "r"); 
+	if (f == NULL) {
+		return -1;
+	}
+	else {
+		
+		for (int i = 0; i < br; i++) {
+			fscanf(f, "%s %s %f", s[i].ime, s[i].prezime, &s[i].bodovi);
 		}
+		fclose(f);
+		return 1;
 	}
+}
 
-	float relativanbrojbodova;
+void ObradaPodataka(int br, struct Student s[]) {
+	float relativan_broj_bodova;
+	
+
 	for (int i = 0; i < br; i++) {
-		relativanbrojbodova = (s[i].bodovi / maxBodovi) * 100;
-		printf("%s %s %d %f\n", s[i].ime, s[i].prezime, s[i].bodovi, relativanbrojbodova);
+		relativan_broj_bodova = (s[i].bodovi / 100) * 100;
+		printf("\n%s %s %f - %.2f\n", s[i].ime, s[i].prezime, s[i].bodovi, relativan_broj_bodova);
 	}
 
 }
+
 
 int main() {
-	char imedatoteke[50];
+	char imedatoteke[100];
 	printf("Unesite ime datoteke.\n");
-	scanf("%s", imedatoteke);
+	scanf(" %s", imedatoteke);
 
-	int br = ProcitajStudente(imedatoteke);
-	if (br == 0) {
-		printf("Nema zapisa u datoteci.\n");
-		return 0;
+	int br = ProcitajRetke(imedatoteke);
+	if (ProcitajRetke(imedatoteke) == -1) {
+		printf("Neuspjesno otvaranje datoteke.\n");
 	}
 
-	struct Student* s = ((struct Student*)malloc(br * sizeof(struct Student)));
-	if (s == NULL) {
-		printf("Neuspjesna alokacija.\n");
-		return 0;
-	}
-
-	if (UcitajIspisi(s, imedatoteke, br) == -1) {
-		printf("Greska pri ucitavanju.\n");
-	}
-
-	free(s);
+	struct Student* s = (struct Student*)malloc(br * sizeof(struct Student));
+	printf("Ispis podataka:\n");
+	UcitajPodatke(br, imedatoteke, s);
+	ObradaPodataka(br, s);
 	return 0;
 }
