@@ -2,12 +2,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-//3. Prethodnom zadatku dodati funkcije :
-//a) dinamički dodaje novi element iza određenog elementa,
-//b) dinamički dodaje novi element ispred određenog elementa,
-//c) sortira listu po prezimenima osoba,
-//d) upisuje listu u datoteku,
-//e) čita listu iz datoteke.
+
+/*3. Prethodnom zadatku dodati funkcije:
+a) dinamički dodaje novi element iza određenog elementa,
+b) dinamički dodaje novi element ispred određenog elementa,
+c) sortira listu po prezimenima osoba,
+d) upisuje listu u datoteku,
+e) čita listu iz datoteke. */
 
 struct Osoba {
 	char ime[50];
@@ -15,12 +16,11 @@ struct Osoba {
 	int gr;
 	struct Osoba* next;
 };
-// dinamički dodaje novi element na početak liste
+//dodaje na pocetak
 int UnosP(struct Osoba* o, char* ime, char* prezime, int gr) {
 	struct Osoba* q;
 	q = (struct Osoba*)malloc(sizeof(struct Osoba));
 	if (q == NULL) {
-		printf("Neuspjesna alokacija.");
 		return -1;
 	}
 	else {
@@ -29,28 +29,16 @@ int UnosP(struct Osoba* o, char* ime, char* prezime, int gr) {
 		q->gr = gr;
 		q->next = o->next;
 		o->next = q;
-	}
-	return 1;
-}
-// ispisuje listu
-void Ispisi(struct Osoba* o) {
-	if (o == NULL) {
-		printf("Lista je prazna.\n");
-	}
-	else {
-		while (o != NULL) {
-			printf("%s %s %d\n", o->ime, o->prezime, o->gr);
-			o = o->next;
-		}
-	}
-}
 
-// dinamički dodaje novi element na kraj liste
+		return 1;
+	}
+
+}
+//dodaje na kraj
 int UnosK(struct Osoba* o, char* ime, char* prezime, int gr) {
 	struct Osoba* q;
 	q = (struct Osoba*)malloc(sizeof(struct Osoba));
 	if (q == NULL) {
-		printf("Neuspjesna alokacija.\n");
 		return -1;
 	}
 	else {
@@ -62,86 +50,92 @@ int UnosK(struct Osoba* o, char* ime, char* prezime, int gr) {
 		q->gr = gr;
 		q->next = o->next;
 		o->next = q;
+
+		return 1;
 	}
-	return 1;
 }
-
-// pronalazi element u listi (po prezimenu)
-struct Osoba* PronadjiPoPrezimenu(struct Osoba* o, char* prezime) {
-	while (o->next != NULL && strcmp(o->prezime, prezime) != 0) {
-		o = o->next;
-	}
-
-	return o;
-
-
-
-}
-// briše određeni element iz liste (npr po prezimenu)
-struct Osoba* Brisi(struct Osoba* o, char* prezime) {
-	struct Osoba* temp;
-
-
-	while (o->next != NULL && strcmp(o->prezime, prezime) != 0) {
-		o = o->next;
-	}
-
-	if (o->next == NULL) { 
-		printf("Osoba nije pronadjena.\n");
+//pronalazi element po prezimenu
+struct Osoba* Pronadji(struct Osoba* o, char* prezime) {
+	if (o == NULL) {
 		return NULL;
 	}
+	while (o->next != NULL && strcmp(o->prezime, prezime) != 0) {
+		o = o->next;
+	}
+	return o;
+}
+//ispisuje elemente liste
+int Ispis(struct Osoba* o) {
+	if (o == NULL) {
+		return -1;
+	}
+	while (o != NULL) {
+		printf(" %s %s %d\n", o->ime, o->prezime, o->gr);
+		o = o->next;
+	}
+}
+
+//brise odredjeni elemenat iz liste (npr po prezimenu)
+void Brisi(struct Osoba* o, char* prezime) {
+	struct Osoba* temp;
 	temp = o->next;
+	while (temp != NULL && strcmp(temp->prezime, prezime) != 0) {
+		o = temp;
+		temp = temp->next;
+	}
 	o->next = temp->next;
 	free(temp);
 }
 
-// __________________ ZADATAK 3 ___________________________
-
-//dinamicki dodaj element iza odredjenog elementa (npr po godini rodjenja)
-int UnosIza(struct Osoba* o, int gr, char* ime, char* prezime, int g) {
-	struct Osoba* q;
-	while (o->next != NULL && o->gr != gr) {
-		o = o->next;
-	}
-	q = (struct Osoba*)malloc(sizeof(struct Osoba));
-	if (q == NULL) {
-		printf("Alokacija neuspjesna.\n");
+int BrisiSve(struct Osoba* o) {
+	if (o == NULL) {
 		return -1;
 	}
-	else {
-		strcpy(o->ime, ime);
-		strcpy(o->prezime, prezime);
-		o->gr = g;
-		q->next = o->next;
-		o->next = q;
+	struct Osoba* temp = o->next;
+	while (o->next != NULL) {
+		temp = o->next;
+		o->next = temp->next;
+		free(temp);
 	}
-
-	return 1;
 }
 
-
-// dinamicki dodaj element ispred odredjenog elementa (isto npr. po godini rodjenja)
-int UnosIspred(struct Osoba* o, int gr, char* ime, char* prezime, int g) {
+// dinamicki dodaje novi element iza odredjenog elementa (prema godini rodjenja)
+int DodajNoviIza(struct Osoba* o, char* ime, char* prezime, int gr, int godina ) {
 	struct Osoba* q;
 	q = (struct Osoba*)malloc(sizeof(struct Osoba));
 	if (q == NULL) {
-		printf("Alokacija neuspjesna.\n");
 		return -1;
 	}
-	else {
-		while (o->next != NULL && o->next->gr != gr) {
-			o = o->next;
-		}
-
-		strcpy(o->ime, ime);
-		strcpy(o->prezime, prezime);
-		o->gr = g;
-		q->next = o->next;
-		o->next = q;
-
+	while (o->next != NULL && o->gr != godina) {
+		o = o->next;
 	}
+	strcpy(q->ime, ime);
+	strcpy(q->prezime, prezime);
+	q->gr = gr;
+	q->next = o->next;
+	o->next = q;
 	return 1;
 
+}
+
+// dinamicki dodaje novi element ispred odredjenog elementa(prema godini rodjenja)
+int DodajNoviIspred(struct Osoba* o, char* ime, char* prezime, int gr, int godina) {
+	struct Osoba* q;
+	q = (struct Osoba*)malloc(sizeof(struct Osoba));
+	if (q == NULL) {
+		return -1;
+	}
+	while (o->next != NULL && o->next->gr != gr) {
+		o = o->next;
+	}
+
+	strcpy(o->ime, ime);
+	strcpy(o->prezime, prezime);
+	o->gr = g;
+	q->next = o->next;
+	o->next = q;
+
+return 1;
 }
 
 // sortira listu po prezimenima osoba
@@ -172,6 +166,7 @@ void SortirajPoPrezimenu(struct Osoba* o) {
 		end = prev_j;
 	}
 }
+
 
 // upisuje u datoteku podatke
 
@@ -211,110 +206,89 @@ int ProcitajDatoteka(struct Osoba* o, char* imedatoteke) {
 
 
 
+
+
 int main() {
 	struct Osoba Head;
 	Head.next = NULL;
 
 	struct Osoba* TraziP = NULL;
-	char odabir;
-	int gr, el;
-	int status;
-	char imedatoteke[30];
+	int odabir;
+	int gr, status;
 	char ime[30], prezime[30];
-
 	while (1) {
-		printf("\nOdaberite:\n");
-		printf("1 - Unos na pocetak\n");
-		printf("2 - Ispisi listu\n");
-		printf("3 - Unos na kraj\n");
-		printf("4 - Pronadji po prezimenu\n");
-		printf("5 - Brisi po prezimenu\n");
-		printf("6 - Unos iza elementa\n");
-		printf("7 - Unos ispred elementa\n");
-		printf("8 - Sortiraj po prezimenu\n");
-		printf("9 - Upisi u datoteku\n");
-		printf("0 - Procitaj iz datoteke\n");
-		printf("K - Kraj\n");
-
-		scanf(" %c", &odabir);
-
+		printf("Unesite koju opciju zelite dodati, za kraj dodajte -1\n");
+		printf(" 1 za unos na pocetak.\n");
+		printf(" 2 za unos na kraj.\n");
+		printf(" 3 za ispis.\n");
+		printf(" 4 za pronalazenje elemenata po prezimenu.\n");
+		printf(" 5 za brisanje odredenog elementa iz liste.\n");
+		printf(" -1 za kraj.\n");
+		scanf(" %d", &odabir);
 		switch (odabir) {
-
-		case '1':
-			scanf("%s %s %d", ime, prezime, &gr);
+		case 1:
+			printf("Unesite ime i prezime te godinu rodjenja osobe koju zelite unijeti na pocetak.\n");
+			scanf(" %s %s %d", ime, prezime, &gr);
 			status = UnosP(&Head, ime, prezime, gr);
-			if (status == -1)
-				printf("Greska pri unosu na pocetak.\n");
-			break;
+			if (status == -1) {
+				printf("Unos neuspjesan.\n");
+			}
+			else {
+				printf("Uspjesno dodano na pocetak.\n");
+			}
+			Ispis(Head.next);
 
-		case '2':
-			Ispisi(Head.next);
 			break;
-
-		case '3':
-			scanf("%s %s %d", ime, prezime, &gr);
+		case 2:
+			printf("Unesite ime i prezime te godinu rodjenja osobe koju zelite unijeti na pocetak.\n");
+			scanf(" %s %s %d", ime, prezime, &gr);
 			status = UnosK(&Head, ime, prezime, gr);
-			if (status == -1)
-				printf("Greska pri unosu na kraj.\n");
+			if (status == -1) {
+				printf("Unos neuspjesan.\n");
+			}
+			else {
+				printf("Uspjesno dodano na kraj.\n");
+			}
+			Ispis(Head.next);
+
 			break;
 
-		case '4':
-			scanf("%s", prezime);
-			TraziP = PronadjiPoPrezimenu(&Head, prezime);
-			if (TraziP != NULL)
-				printf("%s %s %d\n", TraziP->ime, TraziP->prezime, TraziP->gr);
-			else
-				printf("Nije pronadjeno.\n");
+		case 3:
+			status = Ispis(Head.next);
+			if (status == -1) {
+				printf("Prazna vezana lista.\n");
+			}
+			else {
+				printf("Ispis uspjesan.\n");
+			}
+
+			break;
+		case 4:
+			printf("Unesite prezime po kojem zelite pronaci element liste.\n");
+			scanf(" %s", prezime);
+			TraziP = Pronadji(&Head, prezime);
+			if (TraziP == NULL) {
+				printf("Pronalazak neuspjesan.\n");
+			}
+			else {
+				printf("%s %s %d", TraziP->ime, TraziP->prezime, TraziP->gr);
+			}
 			break;
 
-		case '5':
-			scanf("%s", prezime);
-			if (Brisi(&Head, prezime) == NULL)
-				printf("Brisanje nije uspjelo.\n");
+		case 5:
+			printf("Unesite prezime po kojem zelite obrisati element.\n");
+			scanf(" %s", prezime);
+			Brisi(&Head, prezime);
+			Ispis(Head.next);
 			break;
-
-		case '6':
-			scanf("%d", &el);
-			scanf("%s %s %d", ime, prezime, &gr);
-			status = UnosIza(&Head, el, ime, prezime, gr);
-			if (status == -1)
-				printf("Greska pri unosu iza elementa.\n");
-			break;
-
-		case '7':
-			scanf("%d", &el);
-			scanf("%s %s %d", ime, prezime, &gr);
-			status = UnosIspred(&Head, el, ime, prezime, gr);
-			if (status == -1)
-				printf("Greska pri unosu ispred elementa.\n");
-			break;
-
-		case '8':
-			SortirajPoPrezimenu(&Head);
-			break;
-
-		case '9':
-			scanf("%s", imedatoteke);
-			status = UpisiDatoteka(Head.next, imedatoteke);
-			if (status == -1)
-				printf("Greska pri upisu u datoteku.\n");
-			break;
-
-		case '0':
-			scanf("%s", imedatoteke);
-			status = ProcitajDatoteka(&Head, imedatoteke);
-			if (status == -1)
-				printf("Greska pri citanju datoteke.\n");
-			break;
-
-		case 'K':
-		case 'k':
+		case -1:
 			printf("Kraj programa.\n");
 			return 0;
-
-		default:
-			printf("Pogresan odabir.\n");
 		}
-	}
-}
 
+
+	};
+	BrisiSve(&Head);
+
+	return 0;
+}
