@@ -1,198 +1,172 @@
-﻿#include<stdio.h>
-#include<stdlib.h>
+﻿#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>
+/*5. Za dvije sortirane liste L1 i L2 (mogu se pročitati iz datoteke ili unijeti ručno, bitno je samo da su
+sortirane), napisati program koji stvara novu vezanu listu tako da računa:
+a) L1∪L2,
+b) L1∩ L2.
+Liste osim pokazivača na slijedeću strukturu imaju i jedan cjelobrojni element, po kojem su
+sortirane. */
 
-struct _Cvor;
-typedef struct _Cvor* Position;
-
-struct _Cvor
-{
-	int Element;
-	Position Next;
+struct cvor {
+	int el;
+	struct cvor* next;
 };
 
-
-void ReadListFromFile(Position);
-void PrintList(Position);
-void Presjek(Position, Position, Position);
-void Unija(Position, Position, Position);
-
-void main(void)
-{
-	Position headL1, headL2, headP, headU;
-
-	headL1 = (Position)malloc(sizeof(struct _Cvor));
-	if (headL1 == NULL) return;
-	headL1->Next = NULL;
-
-	headL2 = (Position)malloc(sizeof(struct _Cvor));
-	if (headL2 == NULL) return;
-	headL2->Next = NULL;
-
-	headP = (Position)malloc(sizeof(struct _Cvor));
-	if (headP == NULL) return;
-	headP->Next = NULL;
-
-	headU = (Position)malloc(sizeof(struct _Cvor));
-	if (headU == NULL) return;
-	headU->Next = NULL;
-
-	ReadListFromFile(headL1);
-	ReadListFromFile(headL2);
-
-	printf("\r\nLista L1 :");
-	PrintList(headL1->Next);
-
-	printf("\r\nLista L2 :");
-	PrintList(headL2->Next);
-
-	Presjek(headL1->Next, headL2->Next, headP);
-	printf("\r\nPresijek L1 i L2 je :");
-	PrintList(headP->Next);
-
-	Unija(headL1->Next, headL2->Next, headU);
-	printf("\r\nUnija L1 i L2 je :");
-	PrintList(headU->Next);
-
-	printf("\r\n");
-
-	free(headL1);
-	free(headL2);
-	free(headP);
-	free(headU);
+int Ispisi(struct cvor* P) {
+	if (P == NULL) {
+		return -1;
+	}
+	while (P != NULL) {
+		printf(" %d", P->el);
+		P = P->next;
+	}
+	return 1;
 }
 
-void ReadListFromFile(Position P)
-{
-	FILE* stream;
-	char ime_dat[1024];
-	Position q, tmp;
+int BrisiSve(struct cvor* P) {
+	struct cvor* temp;
+	while (P != NULL) {
+		temp = P->next;
+		free(P);
+		P = temp;
+	}
+	return 1;
+}
 
-	printf("\r\nUnesite ime datoteke za èitanje : ");
-	scanf_s(" %s", ime_dat, 1024);
+int Pronadji(struct cvor* L, int x) {
+	while (L != NULL) {
+		if (L->el == x) {
+			return 1;
+		}
+		L = L->next;
+	}
+	return 0;
+}
 
-	fopen_s(&stream, ime_dat, "r");
-	if (stream == NULL)
-		printf("\r\nGreska!\r\nDatoteka: %s  nije otvorena.", ime_dat);
-	else
-	{
-		while (!feof(stream))
-		{
-			q = (Position)malloc(sizeof(struct _Cvor));
-			if (q == NULL)
-				printf("\r\nGreska!\r\nMemorija nije alocirana.");
-			else
-			{
-				fscanf_s(stream, " %d", &q->Element);
-
-				tmp = P;
-
-				while (tmp->Next != NULL && tmp->Next->Element > q->Element)
-					tmp = tmp->Next;
-				q->Next = tmp->Next;
-				tmp->Next = q;
+struct cvor* Unija(struct cvor* L1, struct cvor* L2) {
+	struct cvor* rezultat = NULL, *p = NULL;
+	while (L1 != NULL) {
+		if (!Pronadji(rezultat, L1->el)) {
+			struct cvor* q;
+			q = (struct cvor*)malloc(sizeof(struct cvor));
+			q->el = L1->el;
+			q->next = NULL;
+			if (rezultat == NULL) {
+				rezultat = q;
+				p = rezultat;
+			}
+			else {
+				p->next = q;
+				p = q;
 			}
 		}
-		fclose(stream);
+		L1 = L1->next;
 	}
-}
 
-void PrintList(Position P)
-{
-	while (P != NULL)
-	{
-		printf(" %d", P->Element);
-		P = P->Next;
-	}
-}
 
-void Presjek(Position L1, Position L2, Position P)
-{
-	Position q;
-
-	while (L1 != NULL && L2 != NULL)
-	{
-		if (L1->Element > L2->Element)
-			L1 = L1->Next;
-		else if (L1->Element < L2->Element)
-			L2 = L2->Next;
-		else
-		{
-			q = (Position)malloc(sizeof(struct _Cvor));
-			if (q == NULL)
-				printf("\r\nGreska!\r\nMemorija nije alocirana.");
-			else
-			{
-				q->Element = L1->Element;
-
-				q->Next = P->Next;
-				P->Next = q;
-
-				P = q;
+	while (L2 != NULL) {
+		if (!Pronadji(rezultat, L2->el)) {
+			struct cvor* q;
+			q = (struct cvor*)malloc(sizeof(struct cvor));
+			q->el = L2->el;
+			q->next = NULL;
+			if (rezultat == NULL) {
+				rezultat = q;
+				p = rezultat;
 			}
-			L1 = L1->Next;
-			L2 = L2->Next;
+			else {
+				p->next = q;
+				p = q;
+			}
 		}
+		L2 = L2->next;
 	}
-
+	return rezultat;
 }
-void Unija(Position L1, Position L2, Position U)
-{
-	Position q, tmp;
-	int tmp_element = 0;
 
-	while (L1 != NULL && L2 != NULL)
-	{
-		if (L1->Element > L2->Element)
-		{
-			tmp_element = L1->Element;
-			L1 = L1->Next;
-		}
-		else if (L1->Element < L2->Element)
-		{
-			tmp_element = L2->Element;
-			L2 = L2->Next;
-		}
-		else
-		{
-			tmp_element = L1->Element;
-			L1 = L1->Next;
-			L2 = L2->Next;
-		}
 
-		q = (Position)malloc(sizeof(struct _Cvor));
-		if (q == NULL)
-			printf("\r\nGreska!\r\nMemorija nije alocirana.");
-		else
-		{
-			q->Element = tmp_element;
-
-			q->Next = U->Next;
-			U->Next = q;
-
-			U = q;
+struct cvor* Presjek(struct cvor* L1, struct cvor* L2) {
+	struct cvor* rezultat= NULL, * p = NULL;
+	while (L1 != NULL) {
+		if (Pronadji(L2, L1->el) && !Pronadji(rezultat, L1->el)) {
+			struct cvor* q;
+			q = (struct cvor*)malloc(sizeof(struct cvor));
+			q->el = L1->el;
+			q->next = NULL;
+			if (rezultat == NULL) {
+				rezultat = q;
+				p = q;
+			}
+			else {
+				p->next = q;
+				p = q;
+			}
 		}
+		L1 = L1->next;
 	}
 
-	if (L1 == NULL)
-		tmp = L2;
-	else
-		tmp = L1;
+	return rezultat;
+}
 
-	while (tmp != NULL)
-	{
-		q = (Position)malloc(sizeof(struct _Cvor));
-		if (q == NULL)
-			printf("\r\nGreska!\r\nMemorija nije alocirana.");
-		else
-		{
-			q->Element = tmp->Element;
 
-			q->Next = U->Next;
-			U->Next = q;
+int main() {
+	int n, odabir;
+	struct cvor Head1, Head2;
+	struct cvor* rezultat;
+	Head1.next = NULL;
+	Head2.next = NULL;
+	printf("Koliko zelite da elemenata sadrze obje liste?\n");
+	scanf(" %d", &n);
 
-			U = q;
-		}
-		tmp = tmp->Next;
+	struct cvor* l1 = &Head1;
+	struct cvor* l2 = &Head2;
+	printf("Unesite elemente prve liste za onoliko clanova koliko ste naveli.\n");
+	for (int i = 0; i < n; i++) {
+		struct cvor* q = (struct cvor*)malloc(sizeof(struct cvor));
+		scanf(" %d", &q->el);
+		q->next = NULL;
+		l1->next = q;
+		l1 = q;
 	}
+	printf("Unesite elemente druge liste:\n");
+	for (int i = 0; i < n; i++) {
+		struct cvor* q = (struct cvor*)malloc(sizeof(struct cvor));
+		scanf("%d", &q->el);
+		q->next = NULL;
+		l2->next = q;
+		l2 = q;
+	}
+	while (1) {
+		printf("Sto zelite uciniti s listom?\n Pritisite 1 za uniju, pritisnite 2 za presjek, pritisnite -1 za kraj.\n");
+		scanf(" %d", &odabir);
 
+		switch (odabir) {
+		case 1:
+			rezultat = Unija(Head1.next, Head2.next);
+			if (rezultat == NULL) {
+				printf("Greska.\n");
+			}
+			else {
+				Ispisi(rezultat);
+			}
+			BrisiSve(rezultat);
+			break;
+		case 2:
+			rezultat = Presjek(Head1.next, Head2.next);
+			if (rezultat == NULL) {
+				printf("Greska.\n");
+			}
+			else {
+				Ispisi(rezultat);
+			}
+			BrisiSve(rezultat);
+			break;
+		case -1:
+			BrisiSve(Head1.next);
+			BrisiSve(Head2.next);
+			printf("Kraj.\n");
+			return 0;
+		}
+	}
 }
