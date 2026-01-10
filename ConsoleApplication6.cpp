@@ -15,61 +15,10 @@ Napomena: Funkcija "push" sprema cijeli broj, slučajno generirani u opsegu od 1
 */
 
 // CIRKULARNI STOG
-
-struct cvor {
+struct stog {
 	int el;
-	struct cvor* next;
+	struct stog* next;
 };
-
-void UnosCirkularniStog(struct cvor* s) {
-	struct cvor* q, * prvi, * zadnji;
-	int min = 10, max = 100;
-	q = (struct cvor*)malloc(sizeof(struct cvor));
-	q->el = rand() % (max - min + 1) + min;
-	if (s->next == NULL) {
-		q->next = q;
-		s->next = q;
-	}
-		prvi = s->next;
-		zadnji = prvi;
-		while (zadnji->next != prvi) {
-			zadnji = zadnji->next;
-		}
-
-		q->next = prvi;
-		s->next = q;
-		zadnji->next = q;
-
-}
-
-struct cvor *BrisiCirkularniStog(struct cvor* s) {
-	struct cvor* temp, *zadnji, *prvi;
-
-	if (s->next == NULL) {
-		printf("Stog je prazan.\n");
-		return s;
-	}
-	
-	temp = s->next;
-
-	if (temp->next == temp) {
-		free(temp);
-		s->next = NULL;
-		return s;
-	}
-	prvi = s->next;
-	zadnji = prvi;
-
-		while (zadnji->next != prvi) {
-			zadnji = zadnji->next;
-		}
-		s->next = temp->next;
-		free(temp);
-		zadnji->next = s->next;
-	
-	return s;
-
-}
 
 struct red {
 	int el;
@@ -77,123 +26,233 @@ struct red {
 	struct red* next;
 };
 
-// RED S PRIORITETOM
-void RedSPrioritetom(struct red* r, int x) {
-	struct red* q = (struct red*)malloc(sizeof(struct red));
+int DodajCirkularniStog(struct stog* s) {
+	struct stog* q, * prvi, * zadnji;
+	int min = 10, max = 100;
+	q = (struct stog*)malloc(sizeof(struct stog));
 	if (q == NULL) {
-		printf("Neuspjesna alokacija.\n");
+		return -1;
 	}
-	int max = 5, min = 1;
-	q->prioritet = rand() % (max - min + 1) + min;
-	q->el = x;
-	if (r->next == NULL) {
-		q->next = NULL;
-		r->next = q;
+	q->el = rand() % (max - min + 1) + min;
+	if (s->next == NULL) {
+		s->next = q;
+		q->next = q;
+		prvi = s->next;
+		zadnji = prvi;
 	}
-	else
-	{
-		//priortet sortiram uzlazno, 1 za najveći a 5 za najmanji
-		struct red* prev = r;
-		struct red* next = r->next;
-		while (next != NULL && next->prioritet <= q->prioritet) {
-			prev = next;
-			next = next->next;
-		}
-
-		q->next = next;
-		prev->next = q;
+	prvi = s->next;
+	zadnji = prvi;
+	while (zadnji->next != prvi) {
+		zadnji = zadnji->next;
 	}
 
-	}
+	zadnji->next = q;
+	q->next = prvi;
 
-
-void Ispis(struct cvor* p) {
-	struct cvor* prvi = p;
-	do {
-		printf("%d \t \t", p->el);
-		p=p->next;
-	} while (p != prvi);
+	return 1;
 }
 
-void IspisR(struct red* p) {
-	while (p != NULL) {
-		printf("%d\t %d \n", p->el, p->prioritet);
-		p = p->next;
+int BrisiCirkularniStog(struct stog* s) {
+	struct stog* prvi, * zadnji, * temp;
+	if (s->next == NULL) {
+		return -1;
 	}
+	prvi = s->next;
+	if (prvi->next == prvi) {
+		free(prvi);
+		s->next = NULL;  
+		return 1;
+	}
+	zadnji = prvi;
+	temp = s;
+	while (zadnji->next != prvi) {
+		zadnji = zadnji->next;
+		temp = temp->next;
+	}
+	free(zadnji);
+	zadnji = temp;
+	zadnji->next = prvi;
+
+	return 1;
 }
-
-void Dequeue(struct red* r) {
-	struct red* temp;
-	temp = r->next;
-	if (r->next == NULL) {
-		printf("Prazan stog.");
-
+int BrisiSveS(struct stog *o) {
+	if (o == NULL) {
+		return -1;
 	}
-	else {
-		temp = r->next;
-		r->next = temp->next;
+	struct stog* temp = o->next;
+	while (o->next != NULL) {
+		temp = o->next;
+		o->next = temp->next;
 		free(temp);
 	}
 }
 
+int BrisiSveR(struct red* o) {
+	if (o == NULL) {
+		return -1;
+	}
+	struct red* temp = o->next;
+	while (o->next != NULL) {
+		temp = o->next;
+		o->next = temp->next;
+		free(temp);
+	}
+}
+// RED S PRIORITETOM
+int DodajRed(struct red* r, int x) {
+	struct red* q;
+	int min = 1, max = 5;
+	q = (struct red*)malloc(sizeof(struct red));
+	if (q == NULL) {
+		return -1;
+	}
+	q->el = x;
+	q->prioritet = rand() % (max + min - 1) + min;
+	while (r->next != NULL && r->next->prioritet <= q->prioritet) {
+		r = r->next;
+	}
+	q->next = r->next;
+	r->next = q;
+
+	return 1;
+}
+
+int BrisiRed(struct red* r) {
+	if (r == NULL) {
+		return -1;
+	}
+	struct red* temp;
+	temp = r->next;
+	if (r->next == NULL) {
+		printf("Prazan red.");
+
+	}
+		temp = r->next;
+		r->next = temp->next;
+		free(temp);
+		return 1;
+}
+
+int Ispis(struct stog* p) { 
+	struct stog* prvi = p;
+	if (p == NULL) { return -1;
+	}
+	do {
+		printf("%d \t \t", p->el);
+		p = p->next;
+	} while (p != prvi);
+	return 1; 
+}
+
+
+
+
+
+int IspisR(struct red* p) {
+	if (p == NULL) {
+		return -1;
+	}
+	while (p != NULL) {
+		printf("%d\t %d \n", p->el, p->prioritet);
+		p = p->next;
+	}
+	return 1;
+}
+
+
 
 int main() {
 	srand((unsigned)time(NULL));
-	int odabir;
-	struct cvor Head;
-	Head.next = NULL;
-	struct red HeadR;
-	HeadR.next = NULL;
-	int stog, red;
+	struct stog Head1;
+	struct red Head2;
+	Head1.next = NULL;
+	Head2.next = NULL;
+	int odabir, rezultat, ispis;
+	int odabirS, odabirR;
+	int min = 10, max = 100;
+
 	while (1) {
-		printf("\nUnesite sa cime zelite raditi.\n");
-		printf("\nKliknite 1 za cirkularni stog, 2 za red, 0 za kraj.\n");
+		printf("\nOdaberite sa cime zelite raditi.\n");
+		printf("\t1 - Cirkularni stog\n");
+		printf("\t2 - Red s prioritetom\n");
+		printf("\t-1 - Kraj\n");
 		scanf(" %d", &odabir);
-		if (odabir == 0) {
-			break;
-		}
+
 		switch (odabir) {
-		case 1:
-			printf("\nAko zelite umetnuti neki broj na stog, ukucajte 3, a ako zelite izbaciti iz stoga ukucajte 4.\n");
-			scanf(" %d", &stog);
-			switch (stog) {
-			case 3:
-				UnosCirkularniStog(&Head);
-				printf("\n");
-				Ispis(Head.next);
-				break;
-			case 4:
-				BrisiCirkularniStog(&Head);
-				printf("\n");
-				Ispis(Head.next);
-				break;
-			}
-			break;
-		case 2:
-			printf("\nAko zelite umetnuti neki broj u red, ukucajte 5, a ako zelite izbaciti iz reda ukucajte 6.\n");
-			scanf("%d", &red);
-			switch (red) {
-			case 5: {
-				int broj;
-				printf("Unesite broj:\n");
-				scanf(" %d", &broj);
-				RedSPrioritetom(&HeadR, broj);
-				IspisR(HeadR.next);
-				break;
-			case 6:
-				Dequeue(&HeadR);
-				printf("\n");
-				IspisR(HeadR.next);
+		case 1: {
+			printf("Radite sa stogom.\n");
+			printf("\t3 - Dodaj element u stog\n");
+			printf("\t4 - Izbaci element iz stoga\n");
+			printf("\t-1 - Povratak\n");
+			scanf(" %d", &odabirS);
+
+			switch (odabirS) {
+			case 3: {
+				rezultat = DodajCirkularniStog(&Head1);
+				if (rezultat == -1) printf("Neuspjesno dodavanje.\n");
+				ispis = Ispis(Head1.next);
+				if (ispis == -1) printf("Greska pri ispisu.\n");
 				break;
 			}
+			case 4: {
+				rezultat = BrisiCirkularniStog(&Head1);
+				if (rezultat == -1) printf("Neuspjesno brisanje.\n");
+				ispis = Ispis(Head1.next);
+				if (ispis == -1) printf("Greska pri ispisu.\n");
+				break;
 			}
-			break;
-		default:
-			printf("Pogresan unos.\n");
+			case -1:
+				break;
+			default:
+				printf("Nepoznat odabir.\n");
+				break;
+			}
 			break;
 		}
 
+		case 2: {
+			printf("Radite sa redom s prioritetom.\n");
+			printf("\t5 - Dodaj element u red\n");
+			printf("\t6 - Izbaci element iz reda\n");
+			printf("\t-1 - Povratak\n");
+			scanf(" %d", &odabirR);
+
+			switch (odabirR) {
+			case 5: {
+				int el = rand() % (max - min + 1) + min;
+				rezultat = DodajRed(&Head2, el);
+				if (rezultat == -1) printf("Neuspjesno dodavanje.\n");
+				ispis = IspisR(Head2.next);
+				if (ispis == -1) printf("Greska pri ispisu.\n");
+				break;
+			}
+			case 6: {
+				rezultat = BrisiRed(&Head2);
+				if (rezultat == -1) printf("Neuspjesno brisanje.\n");
+				ispis = IspisR(Head2.next);
+				if (ispis == -1) printf("Greska pri ispisu.\n");
+				break;
+			}
+			case -1:
+				break;
+			default:
+				printf("Nepoznat odabir.\n");
+				break;
+			}
+			break;
+		}
+
+		case -1:
+			BrisiSveS(&Head1);
+			BrisiSveR(&Head2);
+			printf("Kraj programa.\n");
+			return 0;
+
+		default:
+			printf("Nepoznat odabir.\n");
+			break;
+		}
 	}
-	
+
 	return 0;
 }
