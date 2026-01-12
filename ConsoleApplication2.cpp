@@ -126,6 +126,7 @@ int main() {
 			status = UnosP(&Head, ime, prezime, gr);
 			if (status == -1) {
 				printf("Unos neuspjesan.\n");
+				BrisiSve(&Head);
 			}
 			else {
 				printf("Uspjesno dodano na pocetak.\n");
@@ -139,6 +140,7 @@ int main() {
 			status = UnosK(&Head, ime, prezime, gr);
 			if (status == -1) {
 				printf("Unos neuspjesan.\n");
+				BrisiSve(&Head);
 			}
 			else {
 				printf("Uspjesno dodano na kraj.\n");
@@ -151,6 +153,7 @@ int main() {
 			status = Ispis(Head.next);
 			if (status == -1) {
 				printf("Prazna vezana lista.\n");
+				BrisiSve(&Head);
 			}
 			else {
 				printf("Ispis uspjesan.\n");
