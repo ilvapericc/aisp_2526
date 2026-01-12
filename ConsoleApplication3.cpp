@@ -248,6 +248,7 @@ int main() {
 			status = UnosP(&Head, ime, prezime, gr);
 			if (status == -1)
 				printf("Greska pri unosu na pocetak.\n");
+			BrisiSve(&Head);
 			break;
 
 		case '2':
@@ -259,6 +260,7 @@ int main() {
 			status = UnosK(&Head, ime, prezime, gr);
 			if (status == -1)
 				printf("Greska pri unosu na kraj.\n");
+			BrisiSve(&Head);
 			break;
 
 		case '4':
@@ -282,6 +284,7 @@ int main() {
 			status = UnosIza(&Head, el, ime, prezime, gr);
 			if (status == -1)
 				printf("Greska pri unosu iza elementa.\n");
+			BrisiSve(&Head);
 			break;
 
 		case '7':
@@ -290,6 +293,7 @@ int main() {
 			status = UnosIspred(&Head, el, ime, prezime, gr);
 			if (status == -1)
 				printf("Greska pri unosu ispred elementa.\n");
+			BrisiSve(&Head);
 			break;
 
 		case '8':
@@ -301,6 +305,7 @@ int main() {
 			status = UpisiDatoteka(Head.next, imedatoteke);
 			if (status == -1)
 				printf("Greska pri upisu u datoteku.\n");
+			BrisiSve(&Head);
 			break;
 
 		case '0':
@@ -308,6 +313,7 @@ int main() {
 			status = ProcitajDatoteka(&Head, imedatoteke);
 			if (status == -1)
 				printf("Greska pri citanju datoteke.\n");
+			BrisiSve(&Head);
 			break;
 
 		case 'K':
